@@ -6,12 +6,213 @@
 	<label>Username:</label>
 	<input type="text" name="username"/><br/>
 	</div>
+	<!--
 	<div>
 	<label>Password:</label>
 	<input type="password" name="password"/>
 	</div>
 	<div>
 	<input type="submit" value="Submit"/>
+	-->
 	</div>
 </form>
+
+
+<div class="loginview">
+	<div class="signin-box-outer" id="signin">
+		<div class="signin-box-inner">
+			<div class="signin-X">
+				X
+			</div>
+		</div>
+		<div class="signin-tagline">
+			graphical sign in by signin'
+		</div>
+	</div>
+</div>
+
 <p><small>Hint - bob:secret</small></p>
+
+
+<script type="text/javascript">
+	var _paper;
+	var _resolution;
+
+	function onLoad() {
+		_paper = Raphael("signin", 450, 110);
+		_resolution = 0.25;
+		$("#signin svg").css("position", "absolute");
+
+		Cat.initialize("signin", function(mousePosition) {
+			_paper.circle(mousePosition[0], mousePosition[1], 1).attr({
+				"fill": "rgba(0,0,0,0.5)",
+				"stroke-width": 0,
+			});
+		}, function(mousePath) {
+			console.log(JSON.stringify(mousePath));
+			var npoint = Math.round(mousePath.length * _resolution);
+			var smoothedPath = resampleVect(mousePath, npoint);
+			drawPath(smoothedPath, {
+				"stroke" : "#000",
+				"stroke-width" : 2,
+			});
+			$("circle").remove();
+		});
+
+		var fadeOut = Raphael.animation({opacity: 0}, 1000, ">", function() {
+			this.remove();
+			$(".signin-box-outer").addClass("success");
+		});
+		$("body").jkey('enter', function() {
+			_paper.forEach(function(el) {
+				el.animate(fadeOut, 1000);
+			});
+		});
+	}
+
+	function drawPath(path, attributes) {
+		var paths = spline2paths(path);
+		for(var p in paths) {
+			_paper.path(paths[p]).attr(attributes);  //ALLITERATION!!!
+		}
+	}
+
+	function spline2paths(points) {
+		var times = numeric.linspace(0, points.length - 1);
+		var spline = numeric.spline(times, points);
+		var c0, c1, c2, c3;
+	    var pathText;
+	    var paths = [];
+		for(var t = 1; t < spline.x.length; t++) {
+			// The end control points are simply the nodes of the segment.		
+			// The inner control points are 1/3 down the slope vector at the nodes,
+			// in the t-increasing direction for the first node, and t-decreasing
+			// for the second.
+			c0 =  {
+				x : spline.yl[t-1][0],
+				y : spline.yl[t-1][1],
+			};
+			c1 = {
+				x : spline.yl[t-1][0] + spline.kl[t-1][0] / 3.0,
+				y : spline.yl[t-1][1] + spline.kl[t-1][1] / 3.0,
+			};
+			c2 = {
+				x : spline.yl[t][0] - spline.kl[t][0] / 3.0,
+				y : spline.yl[t][1] - spline.kl[t][1] / 3.0,
+			};
+			c3 = {
+				x : spline.yl[t][0],
+				y : spline.yl[t][1],
+			};			
+
+			pathText = "M"+c0.x+","+c0.y+"C"+c1.x+","+c1.y+" "+c2.x+","+c2.y+" "+c3.x+","+c3.y;
+			paths.push(pathText);
+		}
+		console.log(paths);
+		return paths;
+	}
+
+	function resampleVect(points, n) {
+		var I = PathLength(points) / (n - 1); // interval length
+		var D = 0.0;
+		var newpoints = [[points[0][0], points[0][1]]];
+		for (var i = 1; i < points.length; i++) {
+			var d = Distance(points[i - 1], points[i]);
+			if ((D + d) >= I) {
+				var qx = points[i - 1][0] + ((I - D) / d) * (points[i][0] - points[i - 1][0]);
+				var qy = points[i - 1][1] + ((I - D) / d) * (points[i][1] - points[i - 1][1]);
+				newpoints.push([qx, qy]); // append new point 'q'
+				points.splice(i, 0, [qx, qy]); // insert 'q' at position i in points s.t. 'q' will be the next i
+				D = 0.0;
+			}
+			else D += d;
+		}
+		// somtimes we fall a rounding-error short of adding the last point, so add it if so
+		if (newpoints.length == n - 1) {
+			newpoints.push([points[points.length - 1][0], points[points.length - 1][1]]);
+		}
+		return newpoints;
+	}
+
+	function PathLength(points) {
+		var d = 0.0;
+		for (var i = 1; i < points.length; i++)
+			d += Distance(points[i - 1], points[i]);
+		return d;
+	}	
+
+	function Distance(p1, p2) {
+		var dx = p2[0] - p1[0];
+		var dy = p2[1] - p1[1];
+		return Math.sqrt(dx * dx + dy * dy);
+	}
+
+	var Cat = function(){
+		var _element;
+
+		var _positions;
+		var _strokes;
+
+		var _isDown;
+
+		var _mouseMoveCallback;
+		var _mouseUpCallback;
+
+		function getStrokes() {
+			return _strokes;
+		}
+
+		function initialize(element, mouseMoveCallback, mouseUpCallback) {
+			_element = $("#"+element);
+			_mouseMoveCallback = mouseMoveCallback;
+			_mouseUpCallback = mouseUpCallback;
+
+			_positions = new Array();
+			_strokes = new Array();
+
+			var elementOffset = _element.position();
+
+			_element.mousedown( function(event) {
+				if (event.button <= 1) {
+					_isDown = true;
+					_positions.length = 0;
+					_positions.push([event.clientX - elementOffset.left,
+									 event.clientY - elementOffset.top]);
+					_mouseMoveCallback(_positions[_positions.length-1]);
+				}
+			});
+
+			_element.mousemove(function(event) {
+				if (_isDown) {
+					_positions.push([event.clientX - elementOffset.left,
+									 event.clientY - elementOffset.top]);
+					_mouseMoveCallback(_positions[_positions.length-1]);
+				}
+			});
+
+			_element.bind("mouseup mouseleave", function(event) {
+				if (event.button <= 1) {
+					if (_isDown) {
+						_isDown = false;
+						_positions.push([event.clientX - elementOffset.left,
+										 event.clientY - elementOffset.top]);
+						_strokes.push(_positions.slice());
+						_mouseMoveCallback(_positions[_positions.length-1]);
+						_mouseUpCallback(_strokes[_strokes.length-1]);
+					}
+				}
+			});					
+		}
+
+		return {
+			initialize: initialize,
+			strokes: getStrokes,
+		};
+	}();
+</script>
+
+<script>
+	$(document).ready(function() {
+	    onLoad($('.loginview'));
+	});
+</script>

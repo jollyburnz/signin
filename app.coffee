@@ -1,4 +1,5 @@
 express = require('express')
+connect = require 'connect'
 passport = require('passport')
 util = require('util')
 LocalStrategy = require('passport-local').Strategy
@@ -59,6 +60,7 @@ app = express.createServer()
 app.configure ->
   app.set "views", __dirname + "/views"
   app.set "view engine", "ejs"
+  app.use connect.static(__dirname + '/public')
   app.use express.logger()
   app.use express.cookieParser()
   app.use express.bodyParser()
@@ -103,3 +105,5 @@ app.listen 3000
 ensureAuthenticated = (req, res, next) ->
   return next()  if req.isAuthenticated()
   res.redirect "/login"
+
+console.log 'running'
