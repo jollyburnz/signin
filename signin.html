@@ -39,7 +39,7 @@
 					_paper.forEach(function(el) {
 						el.animate(fadeOut, 1000);
 					});
-					$.ajax("/send" {
+					$.ajax("/send", {
 						data: JSON.stringify(Cat.strokes()),
 						success: function (data) {
 							if (data) {
