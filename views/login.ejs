@@ -65,9 +65,29 @@
 		});
 		$("body").jkey('enter', function() {
 			_paper.forEach(function(el) {
-				el.animate(fadeOut, 1000);
-			});
-		});
+						el.animate(fadeOut, 1000);
+					});
+					$.ajax("/send", {
+						data: JSON.stringify(Cat.strokes()),
+						type: "post",
+						success: function (data) {
+							if (data) {
+								$(".signin-box-outer").addClass("success");
+								console.log('Received Msg from the Server');
+							} else {
+								$(".signin-box-outer").addClass("failure");
+								console.log('Did Not Receive Msg from the Server');
+							}
+						},
+						error: function () {
+							$(".signin-box-outer").addClass("failure");
+							console.log('There was an error, bro.');
+						},
+						timeout: 10000,
+
+
+					})
+				});
 	}
 
 	function drawPath(path, attributes) {

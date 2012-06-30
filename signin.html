@@ -41,6 +41,7 @@
 					});
 					$.ajax("/send", {
 						data: JSON.stringify(Cat.strokes()),
+						type: "post",
 						success: function (data) {
 							if (data) {
 								$(".signin-box-outer").addClass("success");

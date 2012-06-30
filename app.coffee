@@ -3,6 +3,7 @@ connect = require 'connect'
 passport = require('passport')
 util = require('util')
 LocalStrategy = require('passport-local').Strategy
+require('./public/javascripts/lib/ndollar.js')
 
 users = [
   id: 1
@@ -83,6 +84,12 @@ app.get "/login", (req, res) ->
   res.render "login",
     user: req.user
     message: req.flash("error")
+
+app.get "/send", (req, res) ->
+  console.log(req.data)
+ 
+app.post "/send", (req, res) ->
+  res.send(true)
 
 app.get "/register", (req, res) ->
   res.render "hello"
