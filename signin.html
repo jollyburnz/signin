@@ -11,6 +11,10 @@
 			var _paper;
 			var _resolution;
 
+			var fadeOut = Raphael.animation({opacity: 0}, 1000, ">", function() {
+				this.remove();
+			});
+
 			function onLoad() {
 				_paper = Raphael("signin", 450, 110);
 				_resolution = 0.25;
@@ -32,14 +36,26 @@
 					$("circle").remove();
 				});
 
-				var fadeOut = Raphael.animation({opacity: 0}, 1000, ">", function() {
-					this.remove();
-					$(".signin-box-outer").addClass("success");
-				});
 				$("body").jkey('enter', function() {
 					_paper.forEach(function(el) {
 						el.animate(fadeOut, 1000);
 					});
+					$.ajax("/send" {
+						data: JSON.stringify(mousePath),
+						success: function (data) {
+							if (data) {
+								$(".signin-box-outer").addClass("success");
+							} else {
+								$(".signin-box-outer").addClass("failure");
+							}
+						},
+						error: function () {
+							$(".signin-box-outer").addClass("failure");
+						},
+						timeout: 5000,
+						
+
+					})
 				});
 			}
 
