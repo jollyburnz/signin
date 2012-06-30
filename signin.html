@@ -17,94 +17,33 @@
 				$("#signin svg").css("position", "absolute");
 
 				Cat.initialize("signin", function(mousePosition) {
-					_paper.circle(mousePosition[0], mousePosition[1], 1).attr("fill", "rgba(0,0,0,0.5)");
+					_paper.circle(mousePosition[0], mousePosition[1], 1).attr({
+						"fill": "rgba(0,0,0,0.5)",
+						"stroke-width": 0,
+					});
 				}, function(mousePath) {
 					console.log(JSON.stringify(mousePath));
 					var npoint = Math.round(mousePath.length * _resolution);
 					var smoothedPath = resampleVect(mousePath, npoint);
-					console.log(smoothedPath);
-					var spline = numeric.spline(numeric.linspace(0, 1, npoint), smoothedPath);
-					console.log(spline);
-					drawSpline(spline, {
+					drawPath(smoothedPath, {
 						"stroke" : "#000",
 						"stroke-width" : 2,
 					});
-					drawPoints(smoothedPath, _paper);
-
+					$("circle").remove();
 				});
 			}
-					function drawPoints(points, paper) {
-						var times = numeric.linspace(0, points.length - 1);
-						var p,b,f;
-						var spline = numeric.spline(times, points);
-						for (var t in spline.x) {
-							p =  {
-								x : spline.yl[t][0],
-								y : spline.yl[t][1],
-							};
-							b = {
-								x : spline.yl[t][0] - spline.kl[t][0] / 3,
-								y : spline.yl[t][1] - spline.kl[t][1] / 3,
-							};
-							f = {
-								x : spline.yl[t][0] + spline.kl[t][0] / 3,
-								y : spline.yl[t][1] + spline.kl[t][1] / 3,
-							};
-							paper.path("M"+b.x+","+b.y+"L"+f.x+","+f.y);
-							paper.circle(b.x, b.y, 2).attr({
-								"fill" : "#0F0",
-							});
-							paper.circle(f.x, f.y, 2).attr({
-								"fill" : "#00F",
-							});
-							paper.circle(p.x, p.y, 4).attr({
-								"fill" : "#F00",
-							});
-						}
-					}
 
-			/*function drawSpline(spline, attributes) {
-				_paper.path(spline2path(spline)).attr(attributes);
-			}*/
 
-			function drawSpline(spline, attributes) {
-				var paths = spline2paths(spline);
+			function drawPath(path, attributes) {
+				var paths = spline2paths(path);
 				for(var p in paths) {
 					_paper.path(paths[p]).attr(attributes);  //ALLITERATION!!!
 				}
 			}
 
-
-			function spline2path(spline) {
-				var x0, y0, x1, y1;
-			    var pathText = "M"+spline.yl[0][0]+","+spline.yl[0][1];
-				for(var t in spline.x) {
-					// The control points are 1/3 down the slope vector at the nodes
-					// For all but the first, we need only the t-decreasing control point
-					// as the S(mooth) SVG path command takes the reflection of the previous
-					// control point over the previous node to guarantee smoothness.
-					x0 = spline.yl[t][0] - spline.kl[t][0] / 3;
-					y0 = spline.yl[t][1] - spline.kl[t][1] / 3;					
-					if (t > 1) {
-						pathText += "S"+x0+","+y0+" "+spline.yl[t][0]+","+spline.yl[t][1];
-					} else if (t > 0) {
-						// if t === 1 begin the chain of bezier curves with a C(ubic) SVG
-						// path command, using the control point gathered the previous iteration
-						pathText += "C"+x1+","+y1+" "+x0+","+y0+" "+spline.yl[t][0]+","+spline.yl[t][1];
-					} else { 
-						// if t === 0 we need to save the forward-pointing control point. 
-						// The first C(ubic Bezier) SVG path command needs both control points
-						// as it lacks a predecessor to reflect.  
-						x1 = spline.yl[t][0] + spline.kl[t][0] / 3;
-					    y1 = spline.yl[t][1] + spline.kl[t][1] / 3;	
-					}
-					console.log(pathText);
-
-				}
-				return pathText;
-			}
-
-			function spline2paths(spline) {
+			function spline2paths(points) {
+				var times = numeric.linspace(0, points.length - 1);
+				var spline = numeric.spline(times, points);
 				var c0, c1, c2, c3;
 			    var pathText;
 			    var paths = [];
@@ -118,12 +57,12 @@
 						y : spline.yl[t-1][1],
 					};
 					c1 = {
-						x : spline.yl[t-1][0] + spline.kl[t-1][0] / 3,
-						y : spline.yl[t-1][1] + spline.kl[t-1][1] / 3,
+						x : spline.yl[t-1][0] + spline.kl[t-1][0] / 3.0,
+						y : spline.yl[t-1][1] + spline.kl[t-1][1] / 3.0,
 					};
 					c2 = {
-						x : spline.yl[t][0] - spline.kl[t][0] / 3,
-						y : spline.yl[t][1] - spline.kl[t][1] / 3,
+						x : spline.yl[t][0] - spline.kl[t][0] / 3.0,
+						y : spline.yl[t][1] - spline.kl[t][1] / 3.0,
 					};
 					c3 = {
 						x : spline.yl[t][0],

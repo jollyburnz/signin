@@ -25,6 +25,10 @@ body {
 	-webkit-user-select: none;
 }
 
+.signin-box-outer.success {
+	box-shadow: 0px 0px 5px 2px green;
+}
+
 .signin-box-inner {
 	border-bottom: 1px solid black;
 	margin: 30px 10px 20px 10px;
