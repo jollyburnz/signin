@@ -22,7 +22,6 @@
 						"stroke-width": 0,
 					});
 				}, function(mousePath) {
-					console.log(JSON.stringify(mousePath));
 					var npoint = Math.round(mousePath.length * _resolution);
 					var smoothedPath = resampleVect(mousePath, npoint);
 					drawPath(smoothedPath, {
@@ -34,12 +33,28 @@
 
 				var fadeOut = Raphael.animation({opacity: 0}, 1000, ">", function() {
 					this.remove();
-					$(".signin-box-outer").addClass("success");
 				});
+
 				$("body").jkey('enter', function() {
 					_paper.forEach(function(el) {
 						el.animate(fadeOut, 1000);
 					});
+					$.ajax("/send", {
+						data: JSON.stringify(Cat.strokes()),
+						success: function (data) {
+							if (data) {
+								$(".signin-box-outer").addClass("success");
+							} else {
+								$(".signin-box-outer").addClass("failure");
+							}
+						},
+						error: function () {
+							$(".signin-box-outer").addClass("failure");
+						},
+						timeout: 5000,
+
+
+					})
 				});
 			}
 
@@ -185,6 +200,12 @@
 		</script>
 	</head>
 	<body onload="onLoad()">
+		<div class="username">
+			<input/>
+		</div>
+		<div class="email">
+			<input/>
+		</div>
 		<div class="signin-box-outer" id="signin">
 			<div class="signin-box-inner">
 				<div class="signin-X">
