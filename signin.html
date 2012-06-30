@@ -31,8 +31,17 @@
 					});
 					$("circle").remove();
 				});
-			}
 
+				var fadeOut = Raphael.animation({opacity: 0}, 1000, ">", function() {
+					this.remove();
+					$(".signin-box-outer").addClass("success");
+				});
+				$("body").jkey('enter', function() {
+					_paper.forEach(function(el) {
+						el.animate(fadeOut, 1000);
+					});
+				});
+			}
 
 			function drawPath(path, attributes) {
 				var paths = spline2paths(path);
