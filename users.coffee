@@ -26,7 +26,7 @@ $ ->
 
 		model: User
 
-		getPass = (user) ->
+		getPass: (user) ->
 			return user.get("password")
 
 		comparator: (user) ->

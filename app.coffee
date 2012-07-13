@@ -3,19 +3,15 @@ connect = require 'connect'
 passport = require('passport')
 util = require('util')
 LocalStrategy = require('passport-local').Strategy
-require('./public/javascripts/lib/ndollar.js')
+r = require('./ndollar.js');
 
-users = [
-  id: 1
-  username: "bob"
-  password: "secret"
-  email: "bob@example.com"
-,
-  id: 2
-  username: "joe"
-  password: "birthday"
-  email: "bob@example.com"
- ]
+#Recognition Shit
+recognizer = new r.NDollarRecognizer(true);
+threshold = .8
+
+verify = (strokes, name) ->
+  result = recognizer.Recognize(strokes, true, true)
+  return (result.name == name && result.score > threshold)
 
 findById = (id, fn) ->
   idx = id - 1
@@ -87,9 +83,18 @@ app.get "/login", (req, res) ->
 
 app.get "/send", (req, res) ->
   console.log(req.data)
- 
+
+app.post "/sendT", (req, res) ->
+  recognizer.AddMultistroke(req.body.username, true, req.body.data)
+   
 app.post "/send", (req, res) ->
-  res.send(true)
+  console.log("-----")
+  console.log(req.body.data)
+  console.log(req.body)
+  #console.log(req)
+  console.log("---------")
+  #console.log(res)
+  res.send(verify(req.body.data,req.body.username))
 
 app.get "/register", (req, res) ->
   res.render "hello"

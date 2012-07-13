@@ -479,7 +479,6 @@ function AngleBetweenUnitVectors(v1, v2) // gives acute angle between unit vecto
 function Round(n,d) { d = Math.pow(10,d); return Math.round(n*d)/d; } // round 'n' to 'd' decimals
 function Deg2Rad(d) { return (d * Math.PI / 180.0); }
 function Rad2Deg(r) { return (r * 180.0 / Math.PI); }
-console.log('spo')
 	return {
 		NDollarRecognizer: NDollarRecognizer,
 	};

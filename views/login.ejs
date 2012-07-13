@@ -4,7 +4,7 @@
 <form action="/login" method="post">
 	<div>
 	<label>Username:</label>
-	<input type="text" name="username"/><br/>
+	<input id="username" type="text" name="username"/><br/>
 	</div>
 	<!--
 	<div>
@@ -68,11 +68,12 @@
 						el.animate(fadeOut, 1000);
 					});
 					$.ajax("/send", {
-						data: JSON.stringify(Cat.strokes()),
+						data: {data:JSON.stringify(Cat.strokes()), username:document.getElementById("username").value},
 						type: "post",
 						success: function (data) {
 							if (data) {
 								$(".signin-box-outer").addClass("success");
+								console.log(this.data)
 								console.log('Received Msg from the Server');
 							} else {
 								$(".signin-box-outer").addClass("failure");
@@ -88,6 +89,12 @@
 
 					})
 				});
+				$("body").jkey('space', function() {
+					$.ajax("/sendT", {
+						data: {data:JSON.stringify(Cat.strokes()), username:document.getElementById("username").value},
+						type: "post",
+					})
+				})
 	}
 
 	function drawPath(path, attributes) {
